@@ -11,7 +11,7 @@ import webbrowser
 import imgviz
 import natsort
 import numpy as np
-from .qt_utils import QtCore, QtGui, QtWidgets, Qt
+from .qt_utils import QtCore, QtGui, QtWidgets, Qt, QAction
 from . import QT6
 
 from . import PY2
@@ -176,10 +176,16 @@ class MainWindow(QtWidgets.QMainWindow):
         scrollArea = QtWidgets.QScrollArea()
         scrollArea.setWidget(self.canvas)
         scrollArea.setWidgetResizable(True)
-        self.scrollBars = {
-            Qt.Vertical: scrollArea.verticalScrollBar(),
-            Qt.Horizontal: scrollArea.horizontalScrollBar(),
-        }
+        if QT6:
+            self.scrollBars = {
+                Qt.Vertical.value: scrollArea.verticalScrollBar(),
+                Qt.Horizontal.value: scrollArea.horizontalScrollBar(),
+            }
+        else:
+            self.scrollBars = {
+                Qt.Vertical: scrollArea.verticalScrollBar(),
+                Qt.Horizontal: scrollArea.horizontalScrollBar(),
+            }
         self.canvas.scrollRequest.connect(self.scrollRequest)
 
         self.canvas.newShape.connect(self.newShape)
@@ -1140,7 +1146,7 @@ class MainWindow(QtWidgets.QMainWindow):
         files = [f for f in self.recentFiles if f != current and exists(f)]
         for i, f in enumerate(files):
             icon = utils.newIcon("labels")
-            action = QtWidgets.QAction(
+            action = QAction(
                 icon, "&%d %s" % (i + 1, QtCore.QFileInfo(f).fileName()), self
             )
             action.triggered.connect(functools.partial(self.loadRecent, f))

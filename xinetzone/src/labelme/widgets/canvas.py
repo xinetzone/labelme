@@ -1,5 +1,5 @@
 import imgviz
-from ..qt_utils import QtCore, QtGui, QtWidgets
+from ..qt_utils import QtCore, QtGui, QtWidgets, Qt
 from .. import QT6
 
 import labelme.ai
@@ -413,8 +413,6 @@ class Canvas(QtWidgets.QWidget):
         else:
             if QT6:
                 pos = self.transformPos(ev.pos().toPointF())
-            elif QT5:
-                pos = self.transformPos(ev.localPos())
             else:
                 pos = self.transformPos(ev.posF())
 
@@ -910,10 +908,14 @@ class Canvas(QtWidgets.QWidget):
         return super(Canvas, self).minimumSizeHint()
 
     def wheelEvent(self, ev):
-        if QT5:
+        if QT5 or QT6:
             mods = ev.modifiers()
             delta = ev.angleDelta()
-            if QtCore.Qt.ControlModifier == int(mods):
+            if QT6:
+                _cond = QtCore.Qt.ControlModifier == mods
+            else:
+                _cond = QtCore.Qt.ControlModifier == int(mods)
+            if _cond:
                 # with Ctrl/Command key
                 # zoom
                 self.zoomRequest.emit(delta.y(), ev.pos())
@@ -924,14 +926,20 @@ class Canvas(QtWidgets.QWidget):
         else:
             if ev.orientation() == QtCore.Qt.Vertical:
                 mods = ev.modifiers()
-                if QtCore.Qt.ControlModifier == int(mods):
+                if QT6:
+                    _ControlModifier_cond = QtCore.Qt.ShiftModifier == mods
+                    _ShiftModifier_cond = QtCore.Qt.ShiftModifier == mods
+                else:
+                    _ControlModifier_cond = QtCore.Qt.ShiftModifier == int(mods)
+                    _ShiftModifier_cond = QtCore.Qt.ShiftModifier == int(mods)
+                if _ControlModifier_cond:
                     # with Ctrl/Command key
                     self.zoomRequest.emit(ev.delta(), ev.pos())
                 else:
                     self.scrollRequest.emit(
                         ev.delta(),
                         QtCore.Qt.Horizontal
-                        if (QtCore.Qt.ShiftModifier == int(mods))
+                        if (_ShiftModifier_cond)
                         else QtCore.Qt.Vertical,
                     )
             else:

@@ -2,7 +2,7 @@ import os.path as osp
 from math import sqrt
 
 import numpy as np
-from ..qt_utils import QtCore, QtGui, QtWidgets
+from ..qt_utils import QtCore, QtGui, QtWidgets, QAction
 from .. import QT6
 
 here = osp.dirname(osp.abspath(__file__))
@@ -34,10 +34,7 @@ def newAction(
     checked=False,
 ):
     """Create a new action and assign callbacks, shortcuts, etc."""
-    if QT6:
-        a = QtGui.QAction(text, parent)
-    else:
-        a = QtWidgets.QAction(text, parent)
+    a = QAction(text, parent)
     if icon is not None:
         a.setIconText(text.replace(" ", "\n"))
         a.setIcon(newIcon(icon))
